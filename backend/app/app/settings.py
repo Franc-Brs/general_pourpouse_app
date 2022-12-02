@@ -177,7 +177,7 @@ CELERY_BEAT_SCHEDULE = {
     "invio_chiamate": {
         # same name of the task of course
         "task": "invio_chiamate",
-        # once a minute (every 45 minutes)
+        # once a minute "*/1" (every 45 minutes)
         "schedule": crontab(minute="*/45"),
     },
 }

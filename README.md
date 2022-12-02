@@ -1,5 +1,9 @@
 # General App
 
+Web App consisting in a table that lists some requests to send to third-party service through Celery periodic task.
+There's a login behind everything.
+
+The task architecture is designed to block every other task unless the one that is being processed, it this task fails it is repeated till eventually a mail is sent to the administrator (defined in the `.env` file).
 ## Run tests
 ```bash
 docker-compose run --rm app sh -c "python manage.py test"
@@ -8,7 +12,7 @@ Run tests and linting highlight
 ```bash
 docker-compose run --rm app sh -c "python manage.py test && flake8" && docker-compose down
 ```
-Create a super user (providing mail e pwd when prompted)
+Create a super user (need to provide mail e pwd when prompted)
 ```bash
 docker-compose run --rm app sh -c "python manage.py createsuperuser"
 ```
