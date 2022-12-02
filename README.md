@@ -43,6 +43,7 @@ When you add the model, before testing, you shoul make migrations:
 docker-compose run --rm app sh -c "python manage.py makemigrations"
 ```
 
+In case you run in troubles with migrations, delete the migration file and re-run makemigrations.
 ## Create new App
 First of all create the app itself
 ```bash
