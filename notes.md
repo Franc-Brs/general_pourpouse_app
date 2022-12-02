@@ -82,6 +82,7 @@ celery beat
 
 managing pwd and filter repo:
 * https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository
+
 remove all images non used:
 ```bash
 docker rmi -f $(docker images -f "dangling=true" -q)
