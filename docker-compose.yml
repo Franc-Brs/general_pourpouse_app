@@ -1,0 +1,104 @@
+version: "3.7"
+
+
+services:
+  app:
+    build:
+      context: ./backend
+      args:
+        - DEV=true
+    image: django_web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app
+    command: /start.sh
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      HOST_ALLOWED: ${HOST_ALLOWED}
+      CELERY_BROKER: ${CELERY_BROKER}
+      CELERY_BACKEND: ${CELERY_BACKEND}
+    depends_on:
+      - db
+      - redis
+
+  celery_worker:
+    build:
+      context: ./backend
+      args:
+        - DEV=true
+    image: django_celery_worker
+    command: /worker_start.sh
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      HOST_ALLOWED: ${HOST_ALLOWED}
+      CELERY_BROKER: ${CELERY_BROKER}
+      CELERY_BACKEND: ${CELERY_BACKEND}
+    volumes:
+      - ./backend/app:/app
+    depends_on:
+      - redis
+      - db
+
+  celery_beat:
+    build:
+      context: ./backend
+      args:
+        - DEV=true
+    image: django_celery_beat
+    command: /beat_start.sh
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      HOST_ALLOWED: ${HOST_ALLOWED}
+      CELERY_BROKER: ${CELERY_BROKER}
+      CELERY_BACKEND: ${CELERY_BACKEND}
+    volumes:
+      - ./backend/app:/app
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    image: redis:7-alpine
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - BACKEND=app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - 3001:3000
+    environment:
+      # not in prod
+      WATCHPACK_POLLING: ${WATCHPACK_POLLING}
+      # https://github.com/facebook/create-react-app/issues/11779#issuecomment-998322739
+      WDS_SOCKET_PORT: ${WDS_SOCKET_PORT}
+      REACT_APP_API_SERVICE_URL: ${REACT_APP_API_SERVICE_URL}
+
+
+volumes:
+  dev-db-data:
+
